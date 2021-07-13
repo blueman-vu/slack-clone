@@ -3,3 +3,5 @@
 ## Day 2: Slack clone by Reactjs
 
 ### Feature
+
+- Firebase for db

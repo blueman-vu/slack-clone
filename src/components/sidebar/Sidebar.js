@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
-import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
-import CreateIcon from "@material-ui/icons/Create";
 import SidebarOption from "./SidebarOption";
+
 import {
+  FiberManualRecord,
   Apps,
   Bookmark,
   Drafts,
@@ -14,22 +14,40 @@ import {
   InsertComment,
   People,
   Add,
+  Create,
 } from "@material-ui/icons";
+import { firebase } from "./../../firebase";
 
+const db = firebase.database();
 function Sidebar() {
+  const [channels, setChannels] = useState([]);
+
+  useEffect(() => {
+    const userRef = db.ref('rooms');
+    userRef.on('value', (snapshot) => {
+      let arrData = []
+      snapshot.forEach(data => {
+        arrData.push({
+          id: data.key,
+          name: data.val().name
+        })
+      })
+      setChannels(arrData)
+    })
+  }, []);
   return (
     <div className="sidebar">
       <div className="sidebar__header">
         <div className="sidebar__info">
           <h2>Slack clone</h2>
           <h3>
-            <FiberManualRecordIcon />
+            <FiberManualRecord />
             Blueman
           </h3>
         </div>
-        <CreateIcon />
+        <Create />
       </div>
-      <SidebarOption Icon={InsertComment} title="Threads" />
+      <SidebarOption Icon={InsertComment} title="Threads" onchange />
       <SidebarOption title="Youtube" />
       <SidebarOption Icon={Inbox} title="Mentions & reactions" />
       <SidebarOption Icon={Drafts} title="Saved items" />
@@ -41,7 +59,11 @@ function Sidebar() {
       <hr />
       <SidebarOption Icon={ExpandMore} title="Channels" />
       <hr />
-      <SidebarOption Icon={Add} title="Add channel" />
+      <SidebarOption Icon={Add} addChannelOption title="Add channel" />
+
+      {channels.map((channel) => (
+        <SidebarOption title={channel.name} id={channel.id} />
+      ))}
     </div>
   );
 }
